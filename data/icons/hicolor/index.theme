@@ -1,0 +1,9 @@
+[Icon Theme]
+Name=Hicolor
+Directories=symbolic/apps
+
+[symbolic/apps]
+Size=16
+Type=Scalable
+MinSize=8
+MaxSize=128

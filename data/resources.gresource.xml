@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/musicdownloader/icons/scalable/actions">
+    <file alias="spotify-symbolic.svg" preprocess="xml-stripblanks">icons/hicolor/symbolic/apps/spotify-symbolic.svg</file>
+  </gresource>
+</gresources>
