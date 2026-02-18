@@ -1,4 +1,5 @@
 mod about;
+mod ffmpeg;
 mod folder;
 mod logs;
 mod popup;
@@ -6,6 +7,7 @@ mod settings;
 mod sp_setup;
 mod ytdlp;
 
+pub use ffmpeg::ffmpeg_missing;
 pub use folder::pick_folder;
 pub use logs::log_viewer;
 pub use popup::show_popup;

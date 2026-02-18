@@ -34,10 +34,11 @@ pub struct App {
 
 #[derive(Debug)]
 pub enum Msg {
-    CheckYtdlp,
+    CheckDeps,
     YtdlpMissing,
     YtdlpInstall(Result<(), String>),
     YtdlpReady,
+    FfmpegMissing,
 
     Search(String),
     SearchRes(Result<Vec<ResultItem>, String>),
@@ -316,7 +317,7 @@ impl Component for App {
         let download_list = model.downloads.widget();
         let widgets = view_output!();
 
-        sender.input(Msg::CheckYtdlp);
+        sender.input(Msg::CheckDeps);
         ComponentParts { model, widgets }
     }
 

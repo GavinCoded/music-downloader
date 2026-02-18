@@ -9,16 +9,23 @@ use super::sp;
 
 pub fn handle(app: &mut App, msg: Msg, sender: ComponentSender<App>, root: &adw::ApplicationWindow) {
     match msg {
-        Msg::CheckYtdlp => {
-            app.status = String::from("chk: yt-dlp");
+        Msg::CheckDeps => {
+            app.status = String::from("chk: deps");
             let s = sender.input_sender().clone();
             relm4::spawn(async move {
+                if !backend::ffmpeg::check().await {
+                    s.emit(Msg::FfmpegMissing);
+                }
                 s.emit(if backend::ytdlp_setup::check().await {
                     Msg::YtdlpReady
                 } else {
                     Msg::YtdlpMissing
                 });
             });
+        }
+        Msg::FfmpegMissing => {
+            app.status = String::from("ffmpeg missing");
+            dialogs::ffmpeg_missing(root);
         }
         Msg::YtdlpMissing => {
             app.status = String::from("yt-dlp missing");
