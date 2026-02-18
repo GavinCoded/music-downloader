@@ -1,6 +1,8 @@
 # Music Downloader
 
 A GTK4/libadwaita desktop app for searching and downloading music via yt-dlp.
+<img width="950" height="700" alt="image" src="https://github.com/user-attachments/assets/bc86205c-f542-4dce-bde5-2b0c80b30b91" />
+
 
 ## Features
 
