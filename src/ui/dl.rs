@@ -3,6 +3,7 @@ use relm4::prelude::*;
 use crate::backend;
 use crate::models::{DlStatus, Track};
 use super::app::{App, Msg};
+use super::dialogs;
 use super::result_row::ResultItem;
 
 pub fn dl_selected(app: &mut App, sender: ComponentSender<App>) {
@@ -129,6 +130,9 @@ pub fn dl_done(app: &mut App, id: u64, result: Result<String, String>) {
     drop(guard);
 
     if let Some(entry) = log_entry {
+        if let Some(handle) = &app.log_handle {
+            dialogs::append_log(handle, &entry);
+        }
         app.logs.push(entry);
     }
     app.dl_done = done;

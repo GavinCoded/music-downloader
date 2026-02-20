@@ -7,6 +7,7 @@ use relm4::factory::FactoryVecDeque;
 
 use crate::backend::spotify;
 use crate::models::{Album, Artist, Track};
+use super::dialogs::LogHandle;
 use super::dl_row::DlRow;
 use super::handlers;
 use super::result_row::{ResultItem, ResultRow, ResultRowOutput};
@@ -27,6 +28,7 @@ pub struct App {
     pub dl_total: usize,
     pub dl_done: usize,
     pub sp_tokens: Option<spotify::Tokens>,
+    pub log_handle: Option<LogHandle>,
     pub sp_row: Option<adw::ActionRow>,
     pub sp_conn_btn: Option<gtk::Button>,
     pub sp_disc_btn: Option<gtk::Button>,
@@ -38,6 +40,8 @@ pub enum Msg {
     YtdlpMissing,
     YtdlpInstall(Result<(), String>),
     YtdlpReady,
+    YtdlpOutdated(String),
+    YtdlpUpdate(Result<(), String>),
     FfmpegMissing,
 
     Search(String),
@@ -308,6 +312,7 @@ impl Component for App {
             dl_total: 0,
             dl_done: 0,
             sp_tokens: spotify::load_tokens(),
+            log_handle: None,
             sp_row: None,
             sp_conn_btn: None,
             sp_disc_btn: None,

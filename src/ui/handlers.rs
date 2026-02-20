@@ -43,7 +43,34 @@ pub fn handle(app: &mut App, msg: Msg, sender: ComponentSender<App>, root: &adw:
             dialogs::ytdlp_install_failed(root, &e);
         }
         Msg::YtdlpReady => {
-            if app.status == "chk: yt-dlp" { app.status = String::from("ready"); }
+            if app.status == "chk: deps" || app.status == "chk: yt-dlp" {
+                app.status = String::from("chk: yt-dlp update");
+                let s = sender.input_sender().clone();
+                relm4::spawn(async move {
+                    if let Ok(Some(ver)) = backend::ytdlp_setup::chk_update_ytdlp().await {
+                        s.emit(Msg::YtdlpOutdated(ver));
+                    } else {
+                        s.emit(Msg::YtdlpReady);
+                    }
+                });
+            } else {
+                app.status = String::from("ready");
+            }
+        }
+        Msg::YtdlpOutdated(ver) => {
+            app.status = String::from("yt-dlp outdated");
+            let s = sender.input_sender().clone();
+            dialogs::ytdlp_outdated(root, &ver, move || {
+                let sc = s.clone();
+                relm4::spawn(async move {
+                    sc.emit(Msg::YtdlpUpdate(backend::ytdlp_setup::install().await));
+                });
+            });
+        }
+        Msg::YtdlpUpdate(Ok(())) => app.status = String::from("yt-dlp updated"),
+        Msg::YtdlpUpdate(Err(e)) => {
+            app.status = format!("update err: {e}");
+            dialogs::ytdlp_install_failed(root, &e);
         }
 
         Msg::Search(q) => search::search(app, q, sender),
@@ -82,7 +109,7 @@ pub fn handle(app: &mut App, msg: Msg, sender: ComponentSender<App>, root: &adw:
         Msg::DlDirPicked(p) => app.dl_dir = p,
         Msg::ShowLogs => {
             let text = if app.logs.is_empty() { String::from("no logs yet") } else { app.logs.join("\n\n") };
-            dialogs::log_viewer(root, &text);
+            app.log_handle = Some(dialogs::log_viewer(root, &text));
         }
         Msg::SettingsDone => {
             app.sp_row = None;

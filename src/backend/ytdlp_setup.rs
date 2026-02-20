@@ -6,7 +6,7 @@ use crate::config;
 const RELEASE: &str = "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
 
 #[derive(Deserialize)]
-struct Release { assets: Vec<Asset> }
+struct Release { tag_name: String, assets: Vec<Asset> }
 
 #[derive(Deserialize)]
 struct Asset { name: String, browser_download_url: String }
@@ -48,4 +48,30 @@ pub async fn install() -> Result<(), String> {
     }
 
     Ok(())
+}
+
+pub async fn chk_update_ytdlp() -> Result<Option<String>, String> {
+    let out = Command::new(config::ytdlp_bin())
+        .arg("--version")
+        .output().await
+        .map_err(|e| format!("version: {e}"))?;
+    let local = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    if local.is_empty() {
+        return Err("could not read local version".into());
+    }
+
+    let client = reqwest::Client::builder()
+        .user_agent("music-downloader")
+        .build().map_err(|e| format!("client: {e}"))?;
+
+    let rel: Release = client.get(RELEASE)
+        .send().await.map_err(|e| format!("req: {e}"))?
+        .json().await.map_err(|e| format!("parse: {e}"))?;
+
+    let remote = rel.tag_name.trim().to_string();
+    if remote != local {
+        Ok(Some(remote))
+    } else {
+        Ok(None)
+    }
 }
